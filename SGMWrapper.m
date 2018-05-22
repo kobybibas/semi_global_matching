@@ -7,14 +7,14 @@ function [ disparity_map ] = SGMWrapper( im_left, im_right, params )
 %           im_right - right image in gray scale. used as the support image
 %           params - diffrent parameters for thr algorithm: 
 %               block_size, disparity_range, P1, P2, directions_num
-% Output:   disparity_map - the dispairty map from left view point
+% Output:   disparity_map - the disparity map from left view point
 %               with values between params.disparity_range(1) 
 %               and params.disparity_range(2)
 
 
-%% Check inputs paramters. put default param if not exsit
+%% Check inputs parameters. put default param if not exist
 
-% Block size for raw cost aggergation. simple block matching
+% Block size for raw cost aggregation. simple block matching
 if ~isfield(params, 'block_size')
     params.block_size = 5; 
 end
@@ -24,12 +24,12 @@ if ~isfield(params, 'disparity_range')
     params.disparity_range = [-16 16]; 
 end
 
-% Penlize for 1 disparity diffrent from the neighber
+% Penalise for 1 disparity different from the neighbor
 if ~isfield(params, 'P1')
     params.P1 = (1/16)*8*params.block_size.^2; 
 end
 
-% Penlize for more than 1 disparity diffrent from the neighber
+% Penalise for more than 1 disparity different from the neighbor
 if ~isfield(params, 'P2')
     params.P2 = (1/16)*32*params.block_size.^2; 
 end
@@ -39,22 +39,22 @@ if ~isfield(params, 'directions_num')
     params.directions_num = 8; 
 end
 
-%% Raw cost aggergation 
+%% Raw cost aggregation 
 % Compute cost using simple block matching with Sum-Square-Diff distance  
 block_size      =   params.block_size;
 disparity_range =   params.disparity_range;
 C = costCalculation(im_left, im_right, block_size, disparity_range);
 
 %% Cost aggregation (Dynamic programming)
-% calculates cost for each pixel and for each disaprity along some path.
-% penalize disparity diffrences between neighbors.
+% calculates cost for each pixel and for each disparity along some path.
+% Penalise disparity differences between neighbors.
 P1              =   params.P1;
 P2              =   params.P2;
 directions_num  =   params.directions_num;
 Lr = costAggregation(C, P1, P2, directions_num);
 
 %% Choose disparity from all paths
-% for each pixel for each disparity summing all costs of the diffrent path.
+% for each pixel for each disparity summing all costs of the different path.
 % choosing disparity with minimum cost.
 disparity_range = params.disparity_range;
 disparity_map = disparitySelection(Lr, disparity_range);
@@ -74,13 +74,13 @@ S = sum(Lr, 4);
 [~, disparity_map] = min(S, [], 3);
 
 %Normalize based on disparity range
-disparity_map = disparity_map + disparity_range(1) -1 ; %-1 because matlab idx start from 1.
+disparity_map = disparity_map + disparity_range(1) -1 ; %-1 because Matlab idx start from 1.
 end
 
 function Lr = costAggregation(C, P1, P2, directions_num)
 % Inputs:   C - cost array, dim: ImageHeight x ImageWidth x DisparityRange
-%           P1 - Penlize for 1 disparity diffrent from the neighber
-%           P2 - Penlize for more than 1 disparity diffrent from the neighber
+%           P1 - Penalise for 1 disparity different from the neighbor
+%           P2 - Penalise for more than 1 disparity different from the neighbor
 %           directions_num - number of direction for which to calculate the patch cost
 % Outputs:  Lr - for each pixel and for each disparity the calculated minimal costs along the paths. 
 %               dim: ImageHeight x ImageWidth x DisparityRange
@@ -95,10 +95,10 @@ assert(P2 > 0);
 [size_y ,size_x , size_d] = size(C);
 max_b = size_x + size_y;
 
-%Initalize output
+%Initialize output
 Lr = zeros([size(C),directions_num], 'double');
 
-%Itereate over direction
+%Iterate over direction
 for dir = 1:directions_num
     Li = zeros(size(C), 'double'); %temp buffer
     
@@ -109,10 +109,10 @@ for dir = 1:directions_num
         inds = directionBasedRemap(dir, b, size_x, size_y, size_d);
         slice = reshape(C(inds), [size(inds,1)/size_d, size_d]); %%dimensions
         
-        %If path exsit evaluate the path cost
+        %If path exist evaluate the path cost
         if all(size(slice) ~= 0)
             
-            %Evalutae cost over the path
+            %Evaluate cost over the path
             graded_slice = evaluatePathCost(slice',P1,P2)';
             Li(inds) = graded_slice(:);
             
@@ -126,11 +126,11 @@ end
 
 function [inds] = directionBasedRemap(direction, b, size_x, size_y, size_d)
 % Parameterization of linear line a1*y = a2*x + b 
-% Each direction means diffrent parameters for a1, a2 and b
+% Each direction means different parameters for a1, a2 and b
 % Inputs:   direction - direction of the path. value between 1 and 8
 %           b - parametrization of the line.
-%           [size_x, size_y, size_d] - dimensions of C arrat (Cost array)
-% Outputs: inds - indces of array C which represnt the path
+%           [size_x, size_y, size_d] - dimensions of C array (Cost array)
+% Outputs: inds - indices of array C which represent the path
 
 %--------------------------------------
 % direction | a1 |  a2 |  flip_order
@@ -144,7 +144,7 @@ function [inds] = directionBasedRemap(direction, b, size_x, size_y, size_d)
 %   7       | 0  |  1  |      1       |
 %   8       | 1  |  -1 |      0       |
 
-% Note: probalbily there is a better way to do it. need to be improved 
+% Note: probably there is a better way to do it. need to be improved 
 
 
 % direction mapping
@@ -202,9 +202,9 @@ end % directionBasedRemap
 function Lr_slice = evaluatePathCost(C_slice, P1, P2)
 % Evaluate the path cost: for each position and for each disparity
 % calculate the cost using dynamic programming.
-% Inputs:   C_slice - path genrated from C array. from which path cost will be calculated.
-%           P1 - Penlize for 1 disparity diffrent from the neighber
-%           P2 - Penlize for more than 1 disparity diffrent from the neighber
+% Inputs:   C_slice - path generated from C array. from which path cost will be calculated.
+%           P1 - Penalise for 1 disparity different from the neighbor
+%           P2 - Penalise for more than 1 disparity diffrent from the neighbor
 % Outputs: Lr_slice - The cost the path C_slice. same dim as C_slice
 
 
@@ -247,7 +247,7 @@ function [C] = costCalculation(im_reference, im_support, block_size, disparity_r
 %               size: WxHx1
 %           block_size - window size of the matching process
 %           disparity_range - vector of the kind [minimum disparity maximum disparity]
-% Output:   C - cost calcultaion result. size WxHxD where D is disparity range
+% Output:   C - cost calculation result. size WxHxD where D is disparity range
 
 
 %Check inputs arguments
@@ -295,7 +295,7 @@ for disp = disparity_range(1) : disparity_range(2)
     
 end
 
-% copy last supported value to bounderies of the output:
+% copy last supported value to boundaries of the output:
 frame_copy = (block_size - 1) / 2;
 
 % replicate areas outside borders for im_diff:
