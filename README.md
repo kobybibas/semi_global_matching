@@ -1,11 +1,21 @@
 # SemiGlobalMathingImplementation
 This is matlab implementation of disparity map generation from stereo images with semi global matching algorithm.
 
-'Heiko Hirschmuller. Stereo processing by semiglobal matching and mutual information. 
-Pattern Analysis and Machine Intelligence, IEEE Transactions on, 30(2):328ñ341, 2008'
+```
+@article{hirschmuller2007stereo,
+  title={Stereo processing by semiglobal matching and mutual information},
+  author={Hirschmuller, Heiko},
+  journal={IEEE Transactions on pattern analysis and machine intelligence},
+  volume={30},
+  number={2},
+  pages={328--341},
+  year={2007},
+  publisher={IEEE}
+}
+```
 
-The main function is How2RunSGMWrapper.m in which all the parameters are setts.
-SGMWrapper.m is called from How2RunSGMWrapper.m and does the actual processing.
+1. The main function is How2RunSGMWrapper.m in which all the parameters are setts.
+2. SGMWrapper.m is called from How2RunSGMWrapper.m and does the actual processing.
 
 ## Inputs
 
